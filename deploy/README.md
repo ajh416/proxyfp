@@ -21,7 +21,9 @@ sudo chown -R canary:canary /opt/canary /var/lib/canary
 # Deploy the code (adjust to your workflow — git clone, rsync, etc.)
 sudo -u canary git clone <your-repo> /opt/canary/src
 sudo -u canary python3 -m venv /opt/canary/.venv
-sudo -u canary /opt/canary/.venv/bin/pip install -e /opt/canary/src
+# Base install only — canary server needs fastapi+uvicorn, nothing else.
+# Do NOT install the [fingerprint] extra here; that's for your laptop.
+sudo -u canary /opt/canary/.venv/bin/pip install /opt/canary/src
 
 # Env file with the key from step 1
 sudo cp /opt/canary/src/deploy/canary.env.example /etc/canary.env

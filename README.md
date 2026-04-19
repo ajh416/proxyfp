@@ -6,7 +6,7 @@ Fingerprint sites as web proxies / anonymizers and submit confirmed hits to Palo
 
 ```sh
 uv venv && source .venv/bin/activate
-uv pip install -e '.[dev]'
+uv pip install -e '.[fingerprint,dev]'
 playwright install chromium
 ```
 

@@ -1,0 +1,8 @@
+{
+  "comment": "MurmurHash3 (32-bit signed) of base64-encoded favicon bytes, Shodan-compatible. Seed with hashes collected from known proxy-software installs; add over time.",
+  "hashes": {
+    "-247388890": "glype_default",
+    "1768726798": "phproxy_default",
+    "-1499411770": "cgiproxy_default"
+  }
+}

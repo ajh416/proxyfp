@@ -79,6 +79,45 @@ SIGNATURES: tuple[Signature, ...] = (
         ),
     ),
     Signature(
+        "uniub",
+        0.95,
+        _compile(
+            r"-jobi</kbd>",
+            r'id=["\']window_title["\']',
+            r"/math/bundle\.js",
+            r"/science/scramjet\.all\.js",
+            r"<!--\s*scramjet\s*-->",
+            r"<!--\s*uv\s*-->",
+        ),
+    ),
+    Signature(
+        "ultraviolet",
+        0.9,
+        _compile(
+            r"__uv\$config",
+            r"UVServiceWorker",
+            r"/uv/uv\.(bundle|config|handler|sw)\.js",
+        ),
+    ),
+    Signature(
+        "scramjet",
+        0.9,
+        _compile(
+            r"ScramjetServiceWorker",
+            r"scramjet\.all\.js",
+            r"scramjet\.(sync|wasm)\.",
+        ),
+    ),
+    Signature(
+        "rammerhead",
+        0.9,
+        _compile(
+            r"rammerhead",
+            r"/rammerhead\.js",
+            r"RH_SESSION",
+        ),
+    ),
+    Signature(
         "generic_url_form",
         0.45,
         _compile(

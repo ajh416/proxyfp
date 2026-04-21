@@ -3,34 +3,15 @@
 from __future__ import annotations
 
 import asyncio
-import os
-import ssl
 from datetime import datetime, timezone
 
 import httpx
 
 from proxyfp import store
-from proxyfp.detectors import ProbeResult, canary, dns, favicon, headers, landing, stack, tls
+from proxyfp.detectors import ProbeResult, dns, favicon, landing, service_worker, stack, tls
 
-DETECTORS = (landing, stack, favicon, tls, headers, canary, dns)
+DETECTORS = (landing, stack, service_worker, favicon, tls, dns)
 USER_AGENT = "Mozilla/5.0 (compatible; proxyfp/0.1)"
-
-
-def _tls_verify():
-    """Return the `verify` argument for httpx.
-
-    Precedence:
-      1. PROXYFP_INSECURE=1       -> disable verification entirely (fingerprint only).
-      2. PROXYFP_CA_BUNDLE=<path> -> use this bundle exclusively.
-      3. SSL_CERT_FILE=<path>     -> Python stdlib convention; respected.
-      4. Default context          -> system trust store.
-    """
-    if os.environ.get("PROXYFP_INSECURE") == "1":
-        return False
-    bundle = os.environ.get("PROXYFP_CA_BUNDLE") or os.environ.get("SSL_CERT_FILE")
-    if bundle:
-        return ssl.create_default_context(cafile=bundle)
-    return True
 
 
 def _now() -> str:
@@ -53,7 +34,7 @@ async def _run_one(target: str, client: httpx.AsyncClient, sem: asyncio.Semaphor
         for coro in asyncio.as_completed(tasks):
             try:
                 results.append(await coro)
-            except Exception as e:  # detector crashed — don't kill the target
+            except Exception as e:  # detector crashed; don't kill the target
                 results.append(
                     ProbeResult(target, "unknown", signal="detector_exception", weight=0.0, error=str(e))
                 )
@@ -65,9 +46,9 @@ async def fingerprint_all(targets: list[str], concurrency: int = 8) -> None:
     already = store.load_keys(store.PROBES, "target", "detector")
     sem = asyncio.Semaphore(concurrency)
     limits = httpx.Limits(max_keepalive_connections=concurrency * 2, max_connections=concurrency * 4)
-    # For fingerprinting we intentionally skip TLS verification — we're probing
+    # For fingerprinting we intentionally skip TLS verification: we're probing
     # sketchy proxy sites, many of which have bad certs, and we don't rely on
-    # trust here. The canary-hits client (below) is strict by default.
+    # trust here.
     async with httpx.AsyncClient(
         headers={"User-Agent": USER_AGENT},
         limits=limits,
@@ -82,12 +63,3 @@ async def fingerprint_all(targets: list[str], concurrency: int = 8) -> None:
                 if (r.target, r.detector) in already:
                     continue
                 store.append(store.PROBES, r.to_row(now))
-
-
-async def refresh_canary_hits() -> dict[str, list[dict]]:
-    """Fetch canary hits and return a nonce -> [hit] map.
-
-    Respects PROXYFP_CA_BUNDLE / SSL_CERT_FILE for corporate MITM chains.
-    """
-    async with httpx.AsyncClient(verify=_tls_verify()) as client:
-        return await canary.confirm_from_canary(client)

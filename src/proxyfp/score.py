@@ -1,9 +1,7 @@
 """Score targets based on their probes.
 
 Rules:
-  * Any canary egress confirmation (nonce received from non-self IP) => 1.0.
-  * Otherwise: max(landing weight, favicon weight, corroboration bonus).
-  * Corroboration bonus: +0.1 if two or more weak signals agree.
+  * score = max(detector weight), plus +0.1 if two or more weak signals agree.
   * Output buckets:
       - score >= 0.8 and strong-signal present -> auto_submit
       - 0.5 <= score < 0.8                     -> review
@@ -18,7 +16,6 @@ from typing import Any
 
 AUTO_THRESHOLD = 0.8
 REVIEW_THRESHOLD = 0.5
-STRONG_SIGNALS = {"canary_egress"}  # + any landing signal with weight >= 0.85 (checked below)
 STRONG_WEIGHT = 0.85
 
 
@@ -30,23 +27,9 @@ class Scored:
     contributing: list[dict[str, Any]]
 
 
-def score_target(probes: list[dict[str, Any]], canary_hits: dict[str, list[dict]] | None = None) -> Scored:
-    canary_hits = canary_hits or {}
+def score_target(probes: list[dict[str, Any]]) -> Scored:
     target = probes[0]["target"]
 
-    # 1. Canary confirmation.
-    for p in probes:
-        if p["detector"] == "canary":
-            nonce = p.get("evidence", {}).get("nonce")
-            if nonce and canary_hits.get(nonce):
-                return Scored(
-                    target=target,
-                    score=1.0,
-                    bucket="auto_submit",
-                    contributing=[{"detector": "canary", "signal": "canary_egress", "hits": canary_hits[nonce]}],
-                )
-
-    # 2. Weighted evidence without canary.
     weights = [(p["detector"], p["signal"], float(p.get("weight", 0.0))) for p in probes]
     max_w = max((w for _, _, w in weights), default=0.0)
     strong = any(w >= STRONG_WEIGHT for _, _, w in weights)

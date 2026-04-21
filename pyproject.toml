@@ -4,17 +4,6 @@ version = "0.1.0"
 description = "Fingerprint proxy/anonymizer sites and submit them to Palo Alto URL categorization."
 requires-python = ">=3.11"
 dependencies = [
-    # Base install = canary server only. Keep this list minimal.
-    "fastapi>=0.110",
-    "uvicorn>=0.29",
-]
-
-[project.scripts]
-proxyfp = "proxyfp.cli:app"
-
-[project.optional-dependencies]
-fingerprint = [
-    # Everything the local fingerprinter + PAN submitter needs.
     "httpx[http2]>=0.27",
     "playwright>=1.44",
     "typer>=0.12",
@@ -23,9 +12,14 @@ fingerprint = [
     "cymruwhois>=1.6",
     "beautifulsoup4>=4.12",
     "lxml>=5.2",
+    "websockets>=12",
 ]
+
+[project.scripts]
+proxyfp = "proxyfp.cli:app"
+
+[project.optional-dependencies]
 dev = [
-    "proxyfp[fingerprint]",
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
     "respx>=0.21",

@@ -8,8 +8,8 @@ from typing import Any
 class ProbeResult:
     target: str
     detector: str
-    signal: str  # short identifier e.g. "glype", "favicon_match", "canary_egress"
-    weight: float  # [0.0, 1.0] — confidence contributed by this detector
+    signal: str  # short identifier e.g. "glype", "favicon_match", "uniub_sw"
+    weight: float  # [0.0, 1.0]: confidence contributed by this detector
     evidence: dict[str, Any] = field(default_factory=dict)
     error: str | None = None
 

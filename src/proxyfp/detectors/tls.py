@@ -1,4 +1,4 @@
-"""TLS fingerprint detector — stub.
+"""TLS fingerprint detector (stub).
 
 Real JA4S capture requires a TLS library that exposes server-hello internals
 (ja4 reference impl, or tshark/pyshark). For now this detector records the
@@ -6,7 +6,7 @@ negotiated version + cipher suite via httpx's transport info as a lightweight
 proxy for "something weird" and leaves proper JA4S wiring as a TODO.
 
 Do not rely on this detector for classification until it's replaced with real
-JA4S — its weight is intentionally 0.0.
+JA4S. Its weight is intentionally 0.0.
 """
 
 from __future__ import annotations

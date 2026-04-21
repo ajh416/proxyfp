@@ -42,7 +42,7 @@ async def probe(target: str, _client) -> ProbeResult:
             return out
 
         asns = await loop.run_in_executor(None, _lookup)
-    except Exception as e:  # network or import issue — contextual only
+    except Exception as e:  # network or import issue; contextual only
         asns = [{"error": str(e)}]
 
     return ProbeResult(

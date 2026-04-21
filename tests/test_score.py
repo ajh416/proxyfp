@@ -1,17 +1,6 @@
 from proxyfp.score import score_target
 
 
-def test_canary_hit_forces_auto_submit():
-    probes = [
-        {"target": "http://x", "detector": "canary", "signal": "canary_emitted", "weight": 0.0,
-         "evidence": {"nonce": "abc"}},
-        {"target": "http://x", "detector": "landing", "signal": "no_match", "weight": 0.0, "evidence": {}},
-    ]
-    result = score_target(probes, canary_hits={"abc": [{"source_ip": "1.2.3.4"}]})
-    assert result.score == 1.0
-    assert result.bucket == "auto_submit"
-
-
 def test_strong_landing_signal_auto_submits():
     probes = [
         {"target": "http://x", "detector": "landing", "signal": "glype", "weight": 0.95, "evidence": {}},

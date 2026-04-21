@@ -29,7 +29,7 @@ def read(path: Path) -> Iterator[dict[str, Any]]:
             try:
                 yield json.loads(line)
             except json.JSONDecodeError:
-                # Partial trailing line from a crash — tolerate silently.
+                # Partial trailing line from a crash; tolerate silently.
                 continue
 
 

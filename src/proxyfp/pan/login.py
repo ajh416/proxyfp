@@ -1,4 +1,4 @@
-"""Headed Playwright login — user signs in, we persist the storage state."""
+"""Headed Playwright login. The user signs in, then we persist storage state."""
 
 from __future__ import annotations
 

@@ -63,7 +63,7 @@ PROBES: tuple[tuple[str, re.Pattern[str], str, float], ...] = (
         "rammerhead",
         0.9,
     ),
-    # Womginx / generic service-worker proxies — last-resort lookup.
+    # Womginx / generic service-worker proxies: last-resort lookup.
     (
         "service-worker.js",
         re.compile(r"(UVServiceWorker|ScramjetServiceWorker|rammerhead)", re.IGNORECASE),

@@ -1,7 +1,7 @@
 """Signatures for well-known web-proxy software landing pages.
 
 Each entry scores independently; the landing detector returns the highest match.
-Weights reflect how unique each signal is — "Glype" in a meta-generator is
+Weights reflect how unique each signal is. "Glype" in a meta-generator is
 essentially definitive, whereas a generic URL-input form is only suggestive.
 """
 

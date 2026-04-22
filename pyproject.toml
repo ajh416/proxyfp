@@ -12,7 +12,6 @@ dependencies = [
     "cymruwhois>=1.6",
     "beautifulsoup4>=4.12",
     "lxml>=5.2",
-    "websockets>=12",
 ]
 
 [project.scripts]

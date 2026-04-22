@@ -13,8 +13,6 @@ from proxyfp.score import group_by_target, score_target
 app = typer.Typer(add_completion=False, help="Fingerprint proxy sites and submit to Palo Alto.")
 pan_app = typer.Typer(help="Palo Alto submission commands.")
 app.add_typer(pan_app, name="pan")
-harvest_app = typer.Typer(help="Harvest candidate targets from external feeds.")
-app.add_typer(harvest_app, name="harvest")
 
 
 @app.command("fingerprint")
@@ -90,48 +88,6 @@ def cmd_pan_submit(
 
     queue = [json.loads(line) for line in source.read_text().splitlines() if line.strip()]
     submit_queue(queue, dry_run=dry_run, throttle_min_s=throttle_min, throttle_max_s=throttle_max)
-
-
-@harvest_app.command("ct")
-def cmd_harvest_ct(
-    output: Path = typer.Option(
-        Path("state/ct_candidates.txt"),
-        "--output", "-o",
-        help="Append unique matching hostnames here. Use '-' for stdout.",
-    ),
-    tokens_file: Path = typer.Option(
-        None, "--tokens-file",
-        help="Optional file of proxy-suggestive tokens, one per line. Overrides defaults.",
-    ),
-    platforms_file: Path = typer.Option(
-        None, "--platforms-file",
-        help="Optional file of platform suffixes (e.g. '.vercel.app'), one per line. Overrides defaults.",
-    ),
-) -> None:
-    """Stream Certstream and append proxy-suspect hostnames to OUTPUT.
-
-    Matches require BOTH a proxy-suggestive token AND a free-tier platform
-    suffix in the hostname. Runs until interrupted; auto-reconnects on
-    upstream disconnect.
-    """
-    from proxyfp.harvest import DEFAULT_PLATFORMS, DEFAULT_TOKENS, run_ct
-
-    def _load(p: Path | None, default: tuple[str, ...]) -> tuple[str, ...]:
-        if p is None:
-            return default
-        return tuple(
-            ln.strip() for ln in p.read_text().splitlines()
-            if ln.strip() and not ln.startswith("#")
-        )
-
-    out_path = None if str(output) == "-" else output
-    asyncio.run(
-        run_ct(
-            output=out_path,
-            tokens=_load(tokens_file, DEFAULT_TOKENS),
-            platforms=_load(platforms_file, DEFAULT_PLATFORMS),
-        )
-    )
 
 
 if __name__ == "__main__":

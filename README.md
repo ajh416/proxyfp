@@ -110,44 +110,10 @@ Every selector lives in `src/proxyfp/pan/form.py` as a single frozen
 dataclass. When the portal UI changes, that file is the only thing to
 patch.
 
-## Harvesting candidates
-
-`proxyfp` can also discover new candidate hostnames from the outside world
-and feed them into `fingerprint`.
-
-### Certificate Transparency stream
-
-```sh
-proxyfp harvest ct                       # writes to state/ct_candidates.txt
-proxyfp harvest ct -o -                  # stream matches to stdout
-proxyfp fingerprint --input state/ct_candidates.txt
-```
-
-`harvest ct` connects to the public Certstream WebSocket feed and appends
-unique hostnames that satisfy **both** conditions:
-
-- hostname contains a proxy-suggestive token (`ultraviolet`, `scramjet`,
-  `rammerhead`, `unblock`, `schoolproxy`, etc.), and
-- hostname ends in a free-tier platform suffix (`.vercel.app`,
-  `.pages.dev`, `.onrender.com`, `.netlify.app`, `.workers.dev`, etc.).
-
-Either condition alone is too noisy. The intersection is a tight filter
-for "a proxy just deployed on a free tier", which is where the
-student-discoverable long tail actually lives. Override the token list
-with `--tokens-file` and the platform list with `--platforms-file`
-(one entry per line; `#` comments allowed). The process runs until
-interrupted and reconnects on upstream disconnect.
-
-A nightly systemd unit or `cron` job of
-`proxyfp harvest ct && proxyfp fingerprint --input state/ct_candidates.txt && proxyfp score`
-is a reasonable pipeline; `fingerprint` dedupes against prior probes, so
-re-runs only cost you the new hostnames.
-
 ## State layout
 
 Everything is append-only JSONL under `state/`:
 
-- `state/ct_candidates.txt`: append-only list of hostnames discovered by `harvest ct`. Feed to `fingerprint`.
 - `state/probes.jsonl`: one row per `(target, detector, run_at)`.
 - `state/review.jsonl`: targets in the review bucket awaiting a human.
 - `state/auto_submit.jsonl`: regenerated each `score` run; consumed by `pan submit`.
